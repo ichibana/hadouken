@@ -17,8 +17,15 @@ void setup()
   bz_mod(0.45);
   pulse();
   for (int i = 0 ; i < 360 ; i++) {
-    tilt(i);
-    delay(50);
+    for (int j = 0 ; j < 180 ; j++) {
+      if (i > 45 && i < 90) {
+        tilt(i,j);
+      }
+      else {
+        tilt(i, 90);
+      }
+    }
+    delay(25);
   }
 }
 
@@ -82,29 +89,19 @@ void safety(int n) {
 }
 
 //Tilt mode
-void tilt(int degrees_yz) {
+void tilt(int degrees_yz, int degrees_xz) {
+  bz_mod(0.85);
   int min_light = 3;
   float theta_yz = float(degrees_yz) * PI / 180;
 
   int boundary = max(min_light, PIXELS * abs(sin(theta_yz)));
-  if (theta_yz >= 0 && theta_yz < PI) {
-    for (int i = 0 ; i < boundary ; i++) {
-      strip.setPixelColor(i, 0, 0, 100);
-    }
-    for (int i = boundary ; i < PIXELS ; i++) {
-      strip.setPixelColor(i, 0, 0, 0);
-    }
+  for (int i = 0 ; i < boundary ; i++) {
+    strip.setPixelColor(i, 0, 0, 100 * bz[boundary - i]);
   }
-  else if (theta_yz > PI && theta_yz < 2 * PI) {
-    for (int i = (PIXELS - 1) ; i > (PIXELS - boundary) ; i--) {
-      strip.setPixelColor(i, 0, 0, 100);
-    }
-    for (int i = (PIXELS - boundary) ; i >= 0; i--  ) {
-      strip.setPixelColor(i, 0, 0, 0);
-    }
+  for (int i = boundary ; i < PIXELS ; i++) {
+    strip.setPixelColor(i, 0, 0, 0);
   }
   strip.show();
-
 }
 
 
