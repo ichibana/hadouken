@@ -17,16 +17,19 @@ void setup()
   bz_mod(0.45);
   pulse();
   for (int i = 0 ; i < 360 ; i++) {
-    for (int j = 0 ; j < 180 ; j++) {
-      if (i > 45 && i < 90) {
-        tilt(i,j);
+    if (i == 230) {
+      for (int j = 90 ; j < 130 ; j++) {
+        tilt(i, j);
       }
-      else {
-        tilt(i, 90);
+      for (int j = 130; j > 90; j--) {
+        tilt(i, j);
       }
     }
-    delay(25);
+    else {
+      tilt(i, 90);
+    }
   }
+  delay(15);
 }
 
 
@@ -91,12 +94,14 @@ void safety(int n) {
 //Tilt mode
 void tilt(int degrees_yz, int degrees_xz) {
   bz_mod(0.85);
+  uint32_t c;
   int min_light = 3;
   float theta_yz = float(degrees_yz) * PI / 180;
 
   int boundary = max(min_light, PIXELS * abs(sin(theta_yz)));
   for (int i = 0 ; i < boundary ; i++) {
-    strip.setPixelColor(i, 0, 0, 100 * bz[boundary - i]);
+    c = Wheel(degrees_xz, 100 * bz[boundary - i]);
+    strip.setPixelColor(i, c);
   }
   for (int i = boundary ; i < PIXELS ; i++) {
     strip.setPixelColor(i, 0, 0, 0);
@@ -104,6 +109,20 @@ void tilt(int degrees_yz, int degrees_xz) {
   strip.show();
 }
 
-
+uint32_t Wheel(int WheelPos, double brightness) {
+  WheelPos = 255 - WheelPos;
+  brightness = brightness / 255;
+  if (WheelPos < 85) {
+    return strip.Color((255 - WheelPos * 3) * brightness, 0, (WheelPos * 3) * brightness);
+  }
+  else if (WheelPos < 170) {
+    WheelPos -= 85;
+    return strip.Color(0, (WheelPos * 3) * brightness, (255 - WheelPos * 3) * brightness);
+  }
+  else {
+    WheelPos -= 170;
+    return strip.Color((WheelPos * 3) * brightness, (255 - WheelPos * 3) * brightness, 0);
+  }
+}
 
 
